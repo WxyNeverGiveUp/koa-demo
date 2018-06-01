@@ -1,0 +1,83 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.mod {
+    background-color: #f0f0f0;
+    margin: 15px 15px 18px 15px;
+    padding: 5px;
+    border: 1px solid #f0f0f0;
+    border-radius: 5px;
+}
+
+.btn {
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 8px 15px;
+    border: 0;
+    border-radius: 3px;
+    background-image: none;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+    letter-spacing: 1px;
+    line-height: 1.428571429;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #2196F3;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #F44336;
+}
+
+h1 {
+    color: #006bb5;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.main {
+    width: 95%;
+    margin: 0 auto;
+}
+
+.left {
+    float: left;
+    width: 80%;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+}
+
+.right {
+    float: right;
+    width: 15%;
+    min-height: 300px;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+}
+
+.chat {
+    position: relative;
+    height: 300px;
+    margin: 10px;
+    padding: 5px;
+}
+
+.edit {
+    padding: 5px;
+    border-top: 1px solid #000;
+}
+
+.edit textarea {
+    width: 90%;
+    vertical-align: bottom;
+}

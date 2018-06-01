@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>多人实时聊天室(公共聊天)</title>
+    <link rel="stylesheet" href="./stylesheets/reset.css">
+    <link rel="stylesheet" href="./stylesheets/style.css">
+</head>
+
+<body>
+    <h1 class="mod">多人实时聊天室(公共聊天区)</h1>
+    <div class="mod clearfix">
+        请输入用户名：
+        <input id="uername" type="text">
+        <input id="btnLogin" type="button" value="登录" class="btn btn-info">
+        <input id="btnLogout" type="button" value="退出登录" class="btn btn-danger">
+    </div>
+    <div class="main">
+        <div class="left">
+            <div class="chat">
+                <!-- 公共聊天内容 -->
+                xx上线了
+            </div>
+            <div class="edit">
+                <span>您要发送的内容：</span>
+                <textarea name="msg" id="msg" cols="30" rows="10"></textarea>
+                <input id="btnSend" type="button" value="发送" class="btn btn-info">
+            </div>
+        </div>
+        <div class="right">
+            在线用户列表：(点击姓名发起私密聊天)
+        </div>
+    </div>
+</body>
+
+</html>
