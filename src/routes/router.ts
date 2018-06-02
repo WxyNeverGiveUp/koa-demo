@@ -24,7 +24,7 @@ router.get('/json', async (ctx: any, next: any) => {
 // router.prefix('/users')
 
 router.get('/', function (ctx: any, next: any) {
-    let pathname = path.resolve(__dirname, '../../../views/index.html'); 
+    let pathname = path.resolve(__dirname, '../../views/index.html'); 
     ctx.response.type = 'html';
     ctx.response.body = fs.createReadStream(pathname);
 })

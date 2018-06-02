@@ -38,6 +38,11 @@ body {
     background-color: #F44336;
 }
 
+.user {
+    font-weight: bold;
+    padding: 0 5px;
+}
+
 h1 {
     color: #006bb5;
     font-weight: bold;
@@ -60,9 +65,11 @@ h1 {
     float: right;
     width: 15%;
     min-height: 300px;
+    max-height: 500px;
     padding: 5px;
     border-radius: 5px;
     background-color: #f0f0f0;
+    overflow: auto;
 }
 
 .chat {
@@ -70,6 +77,7 @@ h1 {
     height: 300px;
     margin: 10px;
     padding: 5px;
+    overflow: auto;
 }
 
 .edit {
