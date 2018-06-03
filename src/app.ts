@@ -1,20 +1,17 @@
+/**
+ * 入口文件
+ */
 import * as Koa from 'koa'
 import * as path from 'path'
 import * as bodyparser from 'koa-bodyparser'
 import * as logger from 'koa-logger'
 import * as json from 'koa-json'
-// 导入WebSocket模块:
-import * as WebSocket from 'ws'
-import * as uuid from 'node-uuid'
 
-import {router as router} from './routes/router';
+import { IO } from './socket/socket'
+import { router} from './routes/router';
 
 const app = new Koa()
 
-// 引用Server类:
-const WebSocketServer = WebSocket.Server;
-
-const views = require('koa-views')
 const onError = require('koa-onerror')
 
 // error handler
@@ -39,7 +36,7 @@ app.use(async (ctx: any, next: any) => {
 })
 
 // routes
-app.use(router.routes()).use(router.allowedMethods()) // allowedMethods必须搭配routes使用😂
+app.use(router.routes()).use(router.allowedMethods()) // allowedMethods搭配routes使用😂
 
 // error-handling
 app.on('error', (err: any, ctx: any) => {
@@ -47,17 +44,10 @@ app.on('error', (err: any, ctx: any) => {
 });
 
 
-// 这一行代码一定要在最后一个app.use后面使用, 在koa中使用socket.io
-let server = require('http').Server(app.callback()),
-	io = require('socket.io')(server);
-	
-// Socket.io的标准用法
-io.on('connection', function(socket: any){
-	socket.emit('news', { hello: 'world' });
-	socket.on('my other event', function (data: any) {
-	  console.log(data);
-	});
-});
+// 一定要在最后一个app.use后面使用, 在koa中使用socket.io
+let server = require('http').Server(app.callback());
+// 自定义IO函数 将socket的业务逻辑分离，减少入口文件的冗余度
+IO(server);
   
 // 开启服务器
 server.listen(3000);

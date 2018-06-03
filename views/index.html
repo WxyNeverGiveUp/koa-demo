@@ -37,62 +37,7 @@
     </div>
     <script src="./javascripts/base/jquery-1.8.3.min.js"></script>
     <script src="./javascripts/socket.io.js"></script>
-    <script>
-        let socket = io();
-        socket.on('news', function(data) {
-            console.log(data);
-            socket.emit('my other event', {
-                my: 'data'
-            });
-        });
-        // let ws = new WebSocket('ws://localhost:3000/');
-        // let chatConetnt = $('.chat')
-        // let userList = $('.user-list')
-        // ws.onopen = function() {
-        //     console.log(`[CLIENT] open()`);
-        // }
-
-        // // 响应收到的消息:
-        // ws.onmessage = function(message) {
-        //         console.log(`[CLIENT] Received: ${message.data}`); // message.data 是一个返回信息
-        //         console.log(message);
-        //         let msg = JSON.parse(message.data).msg
-        //         let name = JSON.parse(message.data).name
-        //         chatConetnt.append(`
-        //             <p>
-        //                 ${message.data}
-        //             <p>    
-        //         `);
-        //         console.log(msg);
-        //         userList.append(`
-        //             <li>
-        //                 ${name}
-        //             </li>
-        //         `);
-        //     }
-        // 逻辑
-        $(function() {
-            let login = $('#btnLogin'); // 登录按钮
-            let logout = $('#btnLogout'); // 退出按钮
-            let send = $('#btnSend'); // 发送信息
-            $(login).click(function() {
-                let name = $('#username').val();
-                let data = JSON.stringify({
-                        name: name,
-                    })
-                    // ws.send(data);
-            })
-            $(send).click(function() {
-                let msg = $('#msg').val();
-                let name = $('#username').val();
-                let data = JSON.stringify({
-                        name: name,
-                        msg: msg
-                    })
-                    // ws.send(data);
-            })
-        })
-    </script>
+    <script src="./javascripts/page/index.js"></script>
 </body>
 
 </html>
