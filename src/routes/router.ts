@@ -6,31 +6,21 @@ import { api } from '../api' // api对象
 const router = new Router();
 
 
-/* index */
-router.get(api.string, async (ctx: any, next: any) => {
-    ctx.body = 'koa2 string'
-    console.log(ctx.body)
-    console.log(ctx.response.body)
-    console.log(ctx.body == ctx.response.body) // => true 是同一个东西
-})
-  
-router.get('/json', async (ctx: any, next: any) => {
-    ctx.body = {
-      title: 'koa2 json'
-    }
-})
-
-/* users */
+/* 路由 */
 // router.prefix('/users')
 
+// 公共聊天区
 router.get('/', function (ctx: any, next: any) {
     let pathname = path.resolve(__dirname, '../../views/index.html'); 
     ctx.response.type = 'html';
     ctx.response.body = fs.createReadStream(pathname);
 })
 
-router.get('/bar', function (ctx: any, next: any) {
-    ctx.body = 'this is a users/bar response'
+// 私密聊天
+router.get('/chat/:user/to/:anotheruser/:type', function (ctx: any, next: any) { // type为1 表示主动发起 为2表示被发起
+    let pathname = path.resolve(__dirname, '../../views/privateChat.html'); 
+    ctx.response.type = 'html';
+    ctx.response.body = fs.createReadStream(pathname);
 })
 
 export { 

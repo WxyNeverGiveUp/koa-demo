@@ -48,6 +48,10 @@ body {
     color: #F44336;
 }
 
+.text-green {
+    color: rgb(41, 211, 41);
+}
+
 .msg {
     display: inline-block;
     border: 1px solid #ccc;
@@ -57,12 +61,30 @@ body {
     border-radius: 5px;
 }
 
+.hide {
+    display: none;
+}
+
 
 /* 公共样式 End */
 
+.tip {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 200px;
+    heigth: 100;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background-color: rgb(187, 127, 127);
+    text-align: center;
+    color: #fff;
+}
+
 .user {
-    font-weight: bold;
     padding: 0 5px;
+    font-weight: bold;
+    color: #000;
 }
 
 .user-list li {
