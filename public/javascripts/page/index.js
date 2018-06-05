@@ -12,7 +12,7 @@ let socket = io(),
 /* 用户列表 */
 socket.emit('user list', '有一个新人进入到房间内啦！')
 socket.on('user list', function(data) {
-    console.log('有新信息!');
+    console.log('向数据库请求新内容！');
     if (data.code) {
         console.log(data.data);
         let li = ''
@@ -27,7 +27,6 @@ socket.on('user list', function(data) {
 
 /* 用户增加 */
 socket.on('user add', function(data) {
-    console.log(data);
     let loginMsg = data.data
     let user = data.user
     if (data.code) {
@@ -37,12 +36,15 @@ socket.on('user add', function(data) {
         login.removeClass('disabled');
         alert(data.msg);
     } else {
-        // 清楚无人在线的提示
+        // 清除无人在线的提示
         $('.user-list .text-red').remove();
         chatContent.append(`
             <p>
                 【系统时间】：${CurentTime()} 
-                ${loginMsg}
+                <span class="user">
+                    ${user}
+                </span>
+                <span class="text-green">${loginMsg}</span> 
             </p>
         `);
         userList.append(`
@@ -54,10 +56,14 @@ socket.on('user add', function(data) {
 /* 删除用户 */
 socket.on('user del', function(data) {
     let logoutMsg = data.data
+    let user = data.user
     chatContent.append(`
         <p>
             【系统时间】：${CurentTime()} 
-            ${logoutMsg}
+            <span class="user">
+                ${user}
+            </span>
+            <span class="text-red">${logoutMsg}</span>
         </p>
     `);
     socket.emit('user list', '有人退出，重新刷列表')
@@ -70,8 +76,15 @@ socket.on('msg', function(data) {
     chatContent.append(`
         <p>
             【系统时间】：${CurentTime()} 
-            ${msg}
+            <span class="user">
+                ${data.user}
+            </span>
+            对大家说：
+            <div class="msg">
+                ${msg} 
+            </div>
         </p>
+        
     `)
 });
 
@@ -80,6 +93,7 @@ socket.on('private chat', function(data) {
     console.log(data);
     if (data.anotheruser == nameText.val()) {
         $('.tip').removeClass('hide');
+        $('#user').text(data.user); // 提示名称
         $('.accpet').attr('href', `/chat/${data.user}/to/${data.anotheruser}/2`); // 页面传参        
     }
 })
@@ -89,7 +103,6 @@ $(function() {
     // 登录按钮
     $(login).click(function() {
         let name = nameText.val();
-        // localStorage.setItem('username', name); // 使用localstorage进行持久化
         if (name != '') {
             socket.emit('user add', name);
             nameText.attr('disabled', 'disabled');
@@ -102,9 +115,8 @@ $(function() {
 
     // 发送按钮
     $(send).click(function() {
-        let msg = $('#msg').val();
         let name = nameText.val();
-        // let name = localStorage.getItem('username');
+        let msg = $('#msg').val();
         console.log(name);
         if (msg != '' && name) {
             $('#msg').val('');
@@ -156,9 +168,10 @@ $(function() {
     $('.user-list').on('click', 'li a', function() {
         let name = nameText.val(); // 发起人姓名
         let anothername = $(this).data('user'); // 被发起人姓名
-        $(this).attr('href', `/chat/${name}/to/${anothername}/1`); // 页面传参
         let isLogin = nameText.prop('disabled');
-        if (!(isLogin && name !== anothername)) {
+        if (isLogin && name !== anothername) {
+            $(this).attr('href', `/chat/${name}/to/${anothername}/1`); // 页面传参
+        } else {
             alert('您暂未登录,或您不能与自己聊天');
             return false;
         }

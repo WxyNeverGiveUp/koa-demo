@@ -1,6 +1,6 @@
-import * as Fun from '../sql/sqlfun' // 数据库封装的一些简单方法
+import * as SQLfun from '../sql/sqlfun' // 数据库封装的一些简单方法
 import {sql as SQL} from '../sql/sql' // 引入sql
-import * as Ifun from '../models/interface'
+import * as Ifun from '../models/interface' // 定义的消息类型接口
 import { promises } from 'fs';
 let sio = require('socket.io');
 
@@ -11,7 +11,7 @@ let IO = function(server: any) {
         counter: number = 0, // 在线聊天室的人数
         messageIndex: number = 0, // 消息的ID
         user: { [key: string]: string; } = {},   
-        usocket: { [key: string]: string; } = {},
+        usocket: { [key: string]: string; } = {}, // 表示一个socket客户端连接，key：发起者 对应value：socket.id
         room: { [key: string]: string} = {}; // 一个私聊室。key：发起者 对应 value：被发起者 
 
     function createMessage(Message: Ifun.Message) {
@@ -26,13 +26,12 @@ let IO = function(server: any) {
     }
     // Socket.io的标准用法
     io.on('connection', function(socket: any){
-
         /* 刚登陆时获取当前在线用户 */
         socket.on('user list', function(data: string){
             console.log(data);
-            console.log('重新刷新列表');
+            console.log('刷新数据库中的用户列表');
             let userList: string = SQL.fetch;
-            Fun.connPool(userList, [], function(err: any,result: any) {
+            SQLfun.connPool(userList, [], function(err: any,result: any) {
                 if(err){
                     console.log(err);
                 }
@@ -53,17 +52,15 @@ let IO = function(server: any) {
         /* 用户登录 */
         socket.on('user add', async function (data: any) {
             counter++; // 增加用户
-            console.log('有一个新人进入了，他的id为' + socket.id)
+            console.log('有一个新人进入数据库，他的id为' + socket.id)
             let id: string = socket.id;
             user[data] = id;
             usocket[id] = data;
-            console.log(user);
-            console.log(usocket);
             let userCheck: string = SQL.check; // 检查是否拥有该用户名
             let userAdd: string = SQL.add; // 检查是否拥有该用户名
             console.log('传送的数据为：' + data);
             await new Promise(function(resolve,reject){
-                Fun.connPool(userCheck,[data], function(err: any,result: any) {
+                SQLfun.connPool(userCheck,[data], function(err: any,result: any) {
                     if(err){
                         console.log(err);
                     }
@@ -77,7 +74,7 @@ let IO = function(server: any) {
                     resolve('此用户不存在，可以继续')
                 })
             })
-            await Fun.connPool(userAdd,[data],function(err: any,result: any) {
+            await SQLfun.connPool(userAdd,[data],function(err: any,result: any) {
                 if(err){
                     console.log(err);
                 }
@@ -86,14 +83,7 @@ let IO = function(server: any) {
                     let Imsg: Ifun.Message = { // 消息接口
                         type: 1,
                         user: data,
-                        data: `
-                            <p>
-                                <span class="user">
-                                    ${data}
-                                </span>
-                                <span class="text-green">已经上线啦！</span> 
-                            </p>
-                        `
+                        data: '已经上线了！'
                     }
                     let msg: object = createMessage(Imsg); // 消息对象
                     
@@ -107,7 +97,7 @@ let IO = function(server: any) {
             counter--;           
             let userDel: string = SQL.del;
             // 数据库操作
-            Fun.connPool(userDel,[data],function(err: any,result: any) {
+            SQLfun.connPool(userDel,[data],function(err: any,result: any) {
                 if(err){
                     console.log(err);
                 }
@@ -116,14 +106,7 @@ let IO = function(server: any) {
                     let Imsg: Ifun.Message = { // 消息接口
                         type: 2,
                         user: data,
-                        data: `
-                            <p>
-                                <span class="user">
-                                    ${data}
-                                </span>
-                                <span class="text-red">已经下线了！</span>
-                            </p>
-                        `
+                        data: '已经下线了！'
                     }
                     let msg: object = createMessage(Imsg); // 消息对象
                     io.sockets.emit('user del', msg)
@@ -138,17 +121,7 @@ let IO = function(server: any) {
             let Imsg: Ifun.Message = { // 消息接口
                 type: 3,
                 user: data.name,
-                data: `
-                    <p>
-                        <span class="user">
-                            ${data.name}
-                        </span>
-                        对大家说：
-                        <div class="msg">
-                            ${data.msg}
-                        </div>
-                    </p>
-                `
+                data: data.msg,
             }
             let msg: object = createMessage(Imsg); // 消息对象
             io.sockets.emit('msg', msg)
@@ -159,6 +132,7 @@ let IO = function(server: any) {
             let user: string = data.user, // 发起人姓名
                 anotheruser: string = data.anotheruser; // 被发起人姓名
             room[user] = anotheruser;
+            console.log('主动者：' + user + ' 被动者：' + anotheruser)
             socket.join(`${user} to ${anotheruser}`); // 加入到指定聊天室
             
             let Imsg: Ifun.Message = { // 消息接口
@@ -168,11 +142,24 @@ let IO = function(server: any) {
                 data: '进入了私聊室'
             }
             let msg: object = createMessage(Imsg); // 消息对象
-            socket.broadcast.emit('private chat', msg) // 主动人 收到的信息
-
-            
+            socket.broadcast.emit('private chat', msg) // 主动人 收到的信息 
         })
 
+        /* 退出私聊 */
+        socket.on('private logout', function(data: any){
+            let Imsg: Ifun.Message = { // 消息接口
+                type: 5,
+                user: data.user,
+                anotheruser: data.anotheruser,
+                data: '退出了私聊室'
+            }
+            let msg: object = createMessage(Imsg); // 消息对象
+            if(data.type == 1){ // 主动者
+                io.in(`${data.user} to ${data.anotheruser}`).emit('private logout',msg)
+            } else{ // 被动者
+                io.in(`${data.anotheruser} to ${data.user}`).emit('private logout',msg)                
+            }
+        })
 
         /* 拒绝私聊 */
         socket.on('private reject',function(data: any){
@@ -186,19 +173,21 @@ let IO = function(server: any) {
             io.sockets.emit('private reject', msg)
         })
 
-            /* 私聊消息 */
-            socket.on('private msg', function(data: any){
-                let Imsg: Ifun.Message = { // 消息接口
-                    type: 5,
-                    user: data.user,
-                    anotheruser: data.anotheruser,
-                    data: data.msg
-                }
-                let msg: object = createMessage(Imsg); // 消息对象
+        /* 私聊消息 */
+        socket.on('private msg', function(data: any){
+            let Imsg: Ifun.Message = { // 消息接口
+                type: 5,
+                user: data.user,
+                anotheruser: data.anotheruser,
+                data: data.msg
+            }
+            let msg: object = createMessage(Imsg); // 消息对象
+            if(data.type == 1){
                 io.in(`${data.user} to ${data.anotheruser}`).emit('private msg',msg)
-            })
-        
-       
+            } else{
+                io.in(`${data.anotheruser} to ${data.user}`).emit('private msg',msg)                
+            }
+        })
 
         /* 断开连接 */
         socket.on('disconnect', function() {
@@ -208,7 +197,7 @@ let IO = function(server: any) {
             let userDel: string = SQL.del;
             let user: string = usocket[socket.id]
             if(user){
-                Fun.connPool(userDel,[user],function(err: any,result: any) {
+                SQLfun.connPool(userDel,[user],function(err: any,result: any) {
                     if(err){
                         console.log(err);
                     }
@@ -216,15 +205,8 @@ let IO = function(server: any) {
                         // 广播
                         let Imsg: Ifun.Message = { // 消息接口
                             type: 3,
-                            user: 'socket.id',
-                            data: `
-                                <p>
-                                    <span class="user">
-                                        ${user}
-                                    </span>
-                                    <span class="text-red">已经下线了！</span>
-                                </p>
-                            `
+                            user: user,
+                            data: '已经下线了！',
                         }
                         let msg: object = createMessage(Imsg); // 消息对象
                         io.sockets.emit('user del', msg)

@@ -5,7 +5,6 @@ import { api } from '../api' // api对象
 
 const router = new Router();
 
-
 /* 路由 */
 // router.prefix('/users')
 
